@@ -20,19 +20,19 @@ GoPDF es una aplicación web para convertir archivos Office o páginas web (URLs
 ## 📂 Estructura del Proyecto
 GoPDF/ ├── public/ ├── src/ │ ├── assets/ │ ├── components/ │ ├── views/ │ ├── router/ │ ├── App.vue │ └── main.js ├── package.json └── vite.config.js
 
-## 📦 Dependencias
+## 📦 Dependencias, Instalacion y Uso
 
 ```bash
 npm install vue@3
 npm install vue-router
 npm install @fortawesome/vue-fontawesome @fortawesome/fontawesome-svg-core @fortawesome/free-solid-svg-icons
 
-## ⚙️ Instalación
+⚙️ Instalación
 git clone https://github.com/tu-usuario/GoPDF.git
 cd GoPDF
 npm install
 
-## 🧪 Uso
+🧪 Uso
 - Ve a /dashboard para subir archivos o convertir URLs.
 
 - Accede a /dashboard/files para ver archivos convertidos.
