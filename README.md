@@ -1,5 +1,3 @@
-GoPDF/ ├── public/ ├── src/ │ ├── assets/ │ ├── components/ │ ├── views/ │ ├── router/ │ ├── App.vue │ └── main.js ├── package.json └── vite.config.js# 📄 GoPDF
-
 GoPDF es una aplicación web para convertir archivos Office o páginas web (URLs) a documentos PDF de manera fácil, rápida e intuitiva.
 
 ## 🚀 Características
