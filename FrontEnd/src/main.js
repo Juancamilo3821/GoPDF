@@ -5,9 +5,9 @@ import "./assets/css/styles.css"
 
 import { library } from '@fortawesome/fontawesome-svg-core'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
-import { faChartBar, faFilePdf, faRightFromBracket, faCloudArrowUp, faChevronRight, faFileLines } from '@fortawesome/free-solid-svg-icons'
+import { faChartBar, faFilePdf, faRightFromBracket, faCloudArrowUp, faChevronRight, faFileLines, faXmark, faPlus  } from '@fortawesome/free-solid-svg-icons'
 
-library.add(faChartBar, faFilePdf, faRightFromBracket, faCloudArrowUp, faChevronRight, faFileLines)
+library.add(faChartBar, faFilePdf, faRightFromBracket, faCloudArrowUp, faChevronRight, faFileLines, faXmark, faPlus )
 
 
 
@@ -17,7 +17,6 @@ import Login from "./views/Login.vue"
 import Register from "./views/Register.vue"
 import Dashboard from "./views/Dashboard.vue"
 import Files from "./views/Files.vue"
-import FileDetail from "./views/FileDetail.vue"
 import Reports from "./views/Reports.vue"
 
 // Configurar rutas
@@ -27,7 +26,6 @@ const routes = [
   { path: "/register", component: Register },
   { path: "/dashboard", component: Dashboard },
   { path: "/dashboard/files", component: Files },
-  { path: "/dashboard/files/:id", component: FileDetail, props: true },
   { path: "/dashboard/reports", component: Reports },
 ]
 

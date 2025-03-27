@@ -1,7 +1,7 @@
 <template>
   <app-header />
   <main>
-    <h1>Bienvenido, {{ userName }}</h1>
+    <h1>Bienvenido, {{ userName }} {{ userLastName }} </h1>
     <p class="p-title">Convierte tus documentos a PDF fácilmente</p>
 
     <div class="div-menu">
@@ -22,9 +22,22 @@
           <p class="p-info">Soportamos Word, Excel, PowerPoint y más.</p>
           <div class="div-upload">
             <font-awesome-icon icon="cloud-arrow-up" class="icon-upload" />
-            <p class="upload-text">Arrastra y suelta archivos aquí</p>
-            <p class="upload-or">o</p>
-            <button class="button-upload">Seleccionar Archivos</button>
+            <label for="file-upload"  class="btn-upload" :class="{ 'label-disabled': archivos.length >= 5 }">Seleccionar Archivos</label>
+            <input id="file-upload" type="file" class="input-file" @change="handleFiles"
+              :disabled="archivos.length === 5" multiple accept=".docx,.xlsx,.pptx" />
+
+            <button class="button-upload" @click="convertirArchivos" :disabled="archivos.length === 0">
+              Convertir Archivos
+            </button>
+
+            <ul class="archivo-lista">
+              <li v-for="(archivo, index) in archivos" :key="index" class="archivo-item">
+                {{ archivo.name }}
+                <button @click="removerArchivo(index)" class="btn-remover"><font-awesome-icon icon="xmark" /></button>
+              </li>
+            </ul>
+
+            <p v-if="archivos.length >= 5" class="max-info">Máximo 5 archivos permitidos</p>
           </div>
         </article>
         <article class="article-convert">
@@ -32,7 +45,10 @@
           <p class="p-info">Convierte paginas web a PDF</p>
           <div class="div-input">
             <label for="url">URL</label>
-            <input id="url" type="url" v-model="url" placeholder="https://www.ejemplo.com" class="input-url" />
+            <div class="div-url-input">
+              <input id="url" type="url" v-model="url" placeholder="https://www.ejemplo.com" class="input-url" />
+              <button class="button-add"><font-awesome-icon icon="plus" /></button>
+            </div>
           </div>
           <div class="button-container">
             <button class="button-url">Convertir URL</button>
@@ -63,7 +79,8 @@ import AppHeader from '../components/AppHeader.vue'
 import AppFooter from '../components/AppFooter.vue'
 import { RouterLink } from 'vue-router'
 
-const userName = ref('TiltRex')
+const userName = ref('Andrés')
+const userLastName = ref('León')
 const url = ref('')
 const stats = ref({
   total: 15,
@@ -77,6 +94,23 @@ const statCards = [
   { label: 'URLs Convertidas', value: stats.value.urls }
 ]
 
+const archivos = ref([])
+
+const handleFiles = (event) => {
+  const nuevos = Array.from(event.target.files)
+
+  archivos.value.push(...nuevos)
+}
+
+const removerArchivo = (index) => {
+  archivos.value.splice(index, 1)
+}
+
+const convertirArchivos = () => {
+  console.log('Convertir archivos:', archivos.value)
+
+}
+
 
 </script>
 
@@ -86,7 +120,7 @@ main {
   flex-direction: column;
   padding-left: 20%;
   padding-right: 20%;
-  padding-top: 0.5%;
+  padding-top: 2%;
 }
 
 a {
@@ -121,7 +155,7 @@ h2 {
   height: 40px;
   padding-left: 1%;
   padding-right: 1%;
-  margin-top: 15px;
+  margin-top: 30px;
 }
 
 .button-convert {
@@ -145,7 +179,7 @@ h2 {
 }
 
 .section-convert {
-  margin-top: 15px;
+  margin-top: 30px;
   border: 2px solid #dcdcdc;
   border-radius: 8px;
   padding: 1%;
@@ -177,22 +211,18 @@ h2 {
   margin-top: 15px;
   padding: 3%;
   gap: 10px;
-}
 
-.upload-text {
-  font-size: 16px;
-  font-weight: 700;
-}
-
-.upload-or {
-  font-size: 14px;
-  color: #868686;
 }
 
 .icon-upload {
   font-size: 40px;
 }
 
+.input-file {
+  display: none;
+}
+
+.btn-upload,
 .button-upload {
   background-color: #000;
   font-family: 'Inter', sans-serif;
@@ -205,6 +235,50 @@ h2 {
   cursor: pointer;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.25);
   width: 45%;
+}
+
+
+.button-upload:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.label-disabled{
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.archivo-lista {
+  list-style: none;
+  padding: 0;
+  margin-top: 16px;
+  text-align: left;
+  width: 100%;
+}
+
+.archivo-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: #f4f4f4;
+  padding: 8px 5px;
+  border-radius: 6px;
+  margin-bottom: 8px;
+  font-size: 85%;
+}
+
+.btn-remover {
+  background: transparent;
+  border: none;
+  font-size: 16px;
+  cursor: pointer;
+  color: #d00;
+}
+
+.max-info {
+  color: #d00;
+  font-size: 13px;
+  margin-top: 10px;
 }
 
 .article-convert {
@@ -221,6 +295,11 @@ h2 {
   gap: 10px;
 }
 
+.div-url-input {
+  display: flex;
+  gap: 10px;
+}
+
 label {
   font-size: 14px;
   font-weight: 700;
@@ -233,6 +312,16 @@ label {
   border: 2px solid #aaa;
   border-radius: 4px;
   outline: none;
+}
+
+.button-add {
+  background-color: #000;
+  color: #fff;
+  font-size: 14px;
+  padding: 8px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
 }
 
 .button-container {
@@ -256,8 +345,8 @@ label {
 }
 
 .section-stats {
-  margin-top: 15px;
-  margin-bottom: 20px;
+  margin-top: 30px;
+  margin-bottom: 30px;
   border: 2px solid #dcdcdc;
   border-radius: 8px;
   padding: 1%;

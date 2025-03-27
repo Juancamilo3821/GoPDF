@@ -1,7 +1,7 @@
 <template>
   <app-header />
   <main>
-    <h1>Bienvenido, TiltRex</h1>
+    <h1>Bienvenido, {{ userName }} {{ userLastName }} </h1>
     <p class="p-title">Convierte tus documentos a PDF fácilmente</p>
 
     <div class="div-menu">
@@ -21,7 +21,7 @@
         </div>
         <div style="display: flex; gap: 10px;">
           <router-link to="/dashboard/reports" class="button-reports">Ver Reportes</router-link>
-          <button class="button-download">Descargar</button>
+          <button class="button-download">Descargar Archivos</button>
         </div>
       </div>
       <div class="file-list">
@@ -59,7 +59,8 @@ import AppFooter from '../components/AppFooter.vue'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { RouterLink } from 'vue-router'
 
-const userName = ref('Usuario')
+const userName = ref('Andrés')
+const userLastName = ref('León')
 const files = ref([
   { name: 'documento-1.pdf', date: '12/3/2025' },
   { name: 'documento-2.pdf', date: '12/3/2025' },
@@ -81,7 +82,7 @@ main {
   flex-direction: column;
   padding-left: 20%;
   padding-right: 20%;
-  padding-top: 0.5%;
+  padding-top: 2%;
   padding-bottom: 0;
   overflow-x: hidden;
 }
@@ -115,34 +116,12 @@ h2 {
   background-color: #e3e3e3;
   border-radius: 5px;
   height: 40px;
-  margin-top: 15px;
+  margin-top: 30px;
   overflow: hidden;
 }
 
-.button-inactive,
-.button-active {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  width: 50%;
-  height: 100%;
-  text-decoration: none;
-  font-weight: bold;
-  font-size: 14px;
-}
-
-.button-inactive {
-  background-color: #e3e3e3;
-  color: #999999;
-}
-
-.button-active {
-  background-color: #000;
-  color: #fff;
-}
-
 .section-files {
-  margin-top: 15px;
+  margin-top: 30px;
   border: 2px solid #dcdcdc;
   border-radius: 8px;
   padding: 1%;
@@ -192,18 +171,6 @@ h2 {
   color: #666;
 }
 
-.button-download {
-  font-size: 12px;
-  padding: 4px 10px;
-  background-color: #f4f4f4;
-  border: 1px solid #ccc;
-  border-radius: 4px;
-  cursor: pointer;
-  margin-top: 5px;
-  height: 30px;
-  align-self: center;
-}
-
 .button-convert {
   display: flex;
   justify-content: center;
@@ -224,27 +191,37 @@ h2 {
   height: 30px;
 }
 
-.button-reports {
-  font-size: 12px;
-  padding: 4px 10px;
-  background-color: #f4f4f4;
-  border: 1px solid #ccc;
-  border-radius: 4px;
+.button-download {
+  background-color: #000;
+  font-family: 'Inter', sans-serif;
+  color: #fff;
+  font-weight: 600;
+  font-size: 14px;
+  padding: 8px;
+  border: none;
+  border-radius: 8px;
   cursor: pointer;
-  margin-top: 5px;
-  height: 30px;
-  align-self: center;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  text-decoration: none;
-  color: inherit;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.25);
+}
+
+
+.button-reports {
+  background-color: #000;
+  font-family: 'Inter', sans-serif;
+  color: #fff;
+  font-weight: 600;
+  font-size: 14px;
+  padding: 8px;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.25);
 }
 
 
 .section-stats {
-  margin-top: 15px;
-  margin-bottom: 20px;
+  margin-top: 30px;
+  margin-bottom: 30px;
   border: 2px solid #dcdcdc;
   border-radius: 8px;
   padding: 1%;

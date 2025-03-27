@@ -80,6 +80,7 @@ h1 {
 
 .section-report {
   margin-top: 20px;
+  margin-bottom: 65px;
   border: 1px solid #ddd;
   border-radius: 10px;
   padding: 2%;
