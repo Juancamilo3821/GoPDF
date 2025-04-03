@@ -6,7 +6,7 @@
 
     <section class="section-report">
       <div class="report-header">
-        <font-awesome-icon icon="chart-line" class="icon-chart" />
+        <font-awesome-icon icon="chart-bar" class="icon-chart" />
         <div>
           <h2>Reporte de Conversiones</h2>
           <p class="p-info">Estadísticas detalladas de tus conversiones</p>
@@ -14,21 +14,9 @@
       </div>
 
       <div class="stats-grid">
-        <div class="stat-card">
-          <p class="stat-value">27</p>
-          <p class="stat-label">Total de Archivos</p>
-        </div>
-        <div class="stat-card blue">
-          <p class="stat-value">15</p>
-          <p class="stat-label">Archivos Office</p>
-        </div>
-        <div class="stat-card purple">
-          <p class="stat-value">10</p>
-          <p class="stat-label">URLs</p>
-        </div>
-        <div class="stat-card black">
-          <p class="stat-value">5.2 MB</p>
-          <p class="stat-label">Tamaño convertido</p>
+        <div class="stat-card" v-for="(item, index) in statCards" :key="index" :class="item.class">
+          <p class="stat-value">{{ item.value }}</p>
+          <p class="stat-label">{{ item.label }}</p>
         </div>
       </div>
 
@@ -38,18 +26,23 @@
           Actividad Reciente
         </h3>
 
-        <div class="activity-item" v-for="i in 5" :key="i">
+        <div class="activity-item" v-for="(item, index) in actividadVisible" :key="index">
           <div class="activity-icon">
             <font-awesome-icon icon="file-lines" />
           </div>
           <div class="activity-info">
             <p class="activity-main">Conversión completada</p>
-            <p class="activity-sub">documento.docx → documento-1.pdf</p>
+            <p class="activity-sub">{{ item.archivo }} → {{ item.archivo + ".pdf" }}</p>
           </div>
-          <p class="activity-time">Hace 1 hora</p>
+          <p class="activity-time">
+            {{ time(item.fecha) }}
+          </p>
         </div>
 
-        <div class="view-more">Ver todo <font-awesome-icon icon="chevron-down" /></div>
+        <div class="view-more" v-if="actividad.length > 5" @click="mostrarTodo = !mostrarTodo">
+          {{ mostrarTodo ? 'Ver menos' : 'Ver todo' }}
+          <font-awesome-icon :icon="mostrarTodo ? 'chevron-up' : 'chevron-down'" />
+        </div>
       </div>
     </section>
   </main>
@@ -57,9 +50,57 @@
 </template>
 
 <script setup>
+import { ref, onMounted, computed } from 'vue'
 import AppHeader from '../components/AppHeader.vue'
 import AppFooter from '../components/AppFooter.vue'
-import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
+
+const stats = ref({ total: 0, office: 0, urls: 0, pesoTotalMB: 0 })
+const statCards = ref([])
+const actividad = ref([])
+const mostrarTodo = ref(false)
+
+const actividadVisible = computed(() => {
+  return mostrarTodo.value ? actividad.value : actividad.value.slice(0, 5)
+})
+
+function time(fechaStr) {
+  const date = new Date(fechaStr)
+  const now = new Date()
+  const diffMs = now - date
+  const diffMin = Math.floor(diffMs / 60000)
+  const diffHoras = Math.floor(diffMin / 60)
+  const diffDias = Math.floor(diffHoras / 24)
+
+  if (diffDias >= 1) return `Hace ${diffDias} día${diffDias > 1 ? 's' : ''}`
+  if (diffHoras >= 1) return `Hace ${diffHoras} hora${diffHoras > 1 ? 's' : ''}`
+  if (diffMin >= 1) return `Hace ${diffMin} minuto${diffMin > 1 ? 's' : ''}`
+  return 'Hace unos segundos'
+}
+
+
+onMounted(async () => {
+  try {
+    const resStats = await fetch('http://localhost:3000/api/stats')
+    const dataStats = await resStats.json()
+    console.log('[DEBUG] Estadísticas recibidas:', dataStats)
+
+    stats.value = dataStats
+    statCards.value = [
+      { label: 'Total de Archivos', value: dataStats.total },
+      { label: 'Archivos Office', value: dataStats.office, class: 'blue' },
+      { label: 'URLs', value: dataStats.urls, class: 'purple' },
+      { label: 'Tamaño convertido', value: `${dataStats.pesoTotalMB} MB`, class: 'black' }
+    ]
+
+    const resActividad = await fetch('http://localhost:3000/api/stats/reporte')
+    const dataActividad = await resActividad.json()
+    console.log('[DEBUG] Actividad recibida:', dataActividad)
+
+    actividad.value = dataActividad
+  } catch (err) {
+    console.error('Error al obtener datos:', err)
+  }
+})
 </script>
 
 <style scoped>

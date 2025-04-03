@@ -1,21 +1,25 @@
-const convertService = require('../services/convertService');
+import * as convertService from '../services/convertService.js';
 
-exports.convertFiles = async (req, res) => {
-    try {
-        const { files, fileNames, token } = req.body;
-        const result = await convertService.convertFiles(files, fileNames, token);
-        res.json(result);
-    } catch (err) {
-        res.status(500).json({ error: err.message });
-    }
+export const convertFiles = async (req, res) => {
+  const { base64Files, fileNames, token } = req.body;
+
+  try {
+    const result = await convertService.convertFiles(base64Files, fileNames, token);
+    res.json({ pdfBase64: result });
+  } catch (error) {
+    console.error('Error al convertir archivos:', error.message);
+    res.status(500).json({ error: 'Error en la conversión de archivos.' });
+  }
 };
 
-exports.convertUrls = async (req, res) => {
-    try {
-        const { urls, token } = req.body;
-        const result = await convertService.convertUrls(urls, token);
-        res.json(result);
-    } catch (err) {
-        res.status(500).json({ error: err.message });
-    }
+export const convertUrls = async (req, res) => {
+  const { urls, token } = req.body;
+
+  try {
+    const result = await convertService.convertUrls(urls, token);
+    res.json({ pdfBase64: result });
+  } catch (error) {
+    console.error('Error al convertir URLs:', error.message);
+    res.status(500).json({ error: 'Error en la conversión de URLs.' });
+  }
 };

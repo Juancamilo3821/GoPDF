@@ -22,13 +22,16 @@
           <p class="p-info">Soportamos Word, Excel, PowerPoint y más.</p>
           <div class="div-upload">
             <font-awesome-icon icon="cloud-arrow-up" class="icon-upload" />
-            <label for="file-upload"  class="btn-upload" :class="{ 'label-disabled': archivos.length >= 5 }">Seleccionar Archivos</label>
+            <label for="file-upload" class="btn-upload" :class="{ 'label-disabled': archivos.length >= 5 }">Seleccionar
+              Archivos</label>
             <input id="file-upload" type="file" class="input-file" @change="handleFiles"
               :disabled="archivos.length === 5" multiple accept=".docx,.xlsx,.pptx" />
 
-            <button class="button-upload" @click="convertirArchivos" :disabled="archivos.length === 0">
+            <button class="button-upload" @click="convertirArchivos"
+              :disabled="archivos.length === 0 || superaLimitePeso">
               Convertir Archivos
             </button>
+
 
             <ul class="archivo-lista">
               <li v-for="(archivo, index) in archivos" :key="index" class="archivo-item">
@@ -36,23 +39,33 @@
                 <button @click="removerArchivo(index)" class="btn-remover"><font-awesome-icon icon="xmark" /></button>
               </li>
             </ul>
-
+            
+            <p class="p-info">Tamaño total: {{ (pesoTotal / (1024 * 1024)).toFixed(2) }} MB</p>
             <p v-if="archivos.length >= 5" class="max-info">Máximo 5 archivos permitidos</p>
+            <p v-if="superaLimitePeso" class="max-info">El peso total de los archivos no debe superar los 200 MB</p>
           </div>
         </article>
         <article class="article-convert">
           <h2>Convertir URL</h2>
           <p class="p-info">Convierte paginas web a PDF</p>
-          <div class="div-input">
-            <label for="url">URL</label>
-            <div class="div-url-input">
-              <input id="url" type="url" v-model="url" placeholder="https://www.ejemplo.com" class="input-url" />
-              <button class="button-add"><font-awesome-icon icon="plus" /></button>
+          <form class="div-input" @submit.prevent="convertirUrls" ref="formRef" novalidate>
+            <label>URL</label>
+            <div v-for="(link, index) in urls" :key="index" class="div-url-input">
+              <input type="url" v-model="urls[index]" placeholder="https://www.ejemplo.com" class="input-url"
+                required />
+              <button class="button-add" type="button" @click="addUrlInput"
+                v-if="index === urls.length - 1 && urls.length < 3">
+                <font-awesome-icon icon="plus" />
+              </button>
+              <button class="button-add" type="button" @click="removeUrlInput(index)" v-if="urls.length > 1">
+                <font-awesome-icon icon="minus" />
+              </button>
             </div>
-          </div>
-          <div class="button-container">
-            <button class="button-url">Convertir URL</button>
-          </div>
+
+            <div class="button-container">
+              <button class="button-url" type="submit">Convertir URL</button>
+            </div>
+          </form>
         </article>
       </div>
     </section>
@@ -73,46 +86,124 @@
   <app-footer />
 </template>
 
+
 <script setup>
-import { ref } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import AppHeader from '../components/AppHeader.vue'
 import AppFooter from '../components/AppFooter.vue'
 import { RouterLink } from 'vue-router'
 
 const userName = ref('Andrés')
 const userLastName = ref('León')
-const url = ref('')
-const stats = ref({
-  total: 15,
-  office: 10,
-  urls: 5
+
+const stats = ref({ total: 0, office: 0, urls: 0 })
+const statCards = ref([])
+
+onMounted(async () => {
+  try {
+    const res = await fetch('http://localhost:3000/api/stats')
+    const data = await res.json()
+    stats.value = data
+    statCards.value = [
+      { label: 'Conversiones Totales', value: data.total },
+      { label: 'Archivos Convertidos', value: data.office },
+      { label: 'URLs Convertidas', value: data.urls }
+    ]
+  } catch (err) {
+    console.error('Error al obtener estadísticas:', err)
+  }
 })
 
-const statCards = [
-  { label: 'Conversiones Totales', value: stats.value.total },
-  { label: 'Archivos Convertidos', value: stats.value.office },
-  { label: 'URLs Convertidas', value: stats.value.urls }
-]
 
 const archivos = ref([])
 
 const handleFiles = (event) => {
-  const nuevos = Array.from(event.target.files)
+  const nuevosArchivos = Array.from(event.target.files)
 
-  archivos.value.push(...nuevos)
+  const archivosValidos = nuevosArchivos.filter(archivo => {
+    const tipo = archivo.type
+    return tipo === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' ||
+           tipo === 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' ||
+           tipo === 'application/vnd.openxmlformats-officedocument.presentationml.presentation'
+  })
+
+  if (archivosValidos.length < nuevosArchivos.length) {
+    alert('Algunos archivos fueron rechazados. Solo se permiten archivos de Word (.docx), Excel (.xlsx) y PowerPoint (.pptx).')
+  }
+
+  archivos.value.push(...archivosValidos)
 }
 
 const removerArchivo = (index) => {
   archivos.value.splice(index, 1)
 }
 
-const convertirArchivos = () => {
-  console.log('Convertir archivos:', archivos.value)
+const convertirArchivos = async () => {
+  try {
+    const archivosConvertidos = []
 
+    for (const archivo of archivos.value) {
+      const base64 = await toBase64(archivo)
+      archivosConvertidos.push({
+        nombre: archivo.name,
+        tipo: archivo.type,
+        tamaño: archivo.size,
+        contenido: base64
+      })
+    }
+
+    console.log('Archivos en Base64:', archivosConvertidos)
+  } catch (error) {
+    console.error('Error al convertir archivos a Base64:', error)
+  }
+}
+
+const pesoTotal = computed(() => {
+  return archivos.value.reduce((total, archivo) => total + archivo.size, 0)
+})
+
+const superaLimitePeso = computed(() => {
+  return pesoTotal.value > 200 * 1024 * 1024 // 200 MB
+})
+
+const toBase64 = (file) => {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader()
+    reader.readAsDataURL(file)
+    reader.onload = () => resolve(reader.result)
+    reader.onerror = (error) => reject(error)
+  })
 }
 
 
+const urls = ref([''])
+const formRef = ref(null)
+
+const addUrlInput = () => {
+  if (urls.value.length < 3) {
+    urls.value.push('')
+  }
+}
+
+const removeUrlInput = (index) => {
+  if (urls.value.length > 1) {
+    urls.value.splice(index, 1)
+  }
+}
+
+const convertirUrls = () => {
+  const form = formRef.value
+  if (!form.checkValidity()) {
+    form.reportValidity()
+    return
+  }
+
+  const urlsFiltradas = urls.value.map(u => u.trim())
+  console.log('Convertir URLs:', urlsFiltradas)
+}
 </script>
+
+
 
 <style scoped>
 main {
@@ -243,7 +334,7 @@ h2 {
   cursor: not-allowed;
 }
 
-.label-disabled{
+.label-disabled {
   opacity: 0.5;
   cursor: not-allowed;
 }
@@ -326,7 +417,6 @@ label {
 
 .button-container {
   display: flex;
-  justify-content: center;
 }
 
 .button-url {
@@ -340,7 +430,7 @@ label {
   border-radius: 8px;
   cursor: pointer;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.25);
-  width: 95%;
+  width: 92%;
   margin-top: 15px;
 }
 

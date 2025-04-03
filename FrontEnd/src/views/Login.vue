@@ -39,11 +39,34 @@ const router = useRouter()
 const email = ref('')
 const password = ref('')
 
-const handleLogin = () => {
-  console.log('Login con:', email.value, password.value)
-  router.push('/dashboard')
+const handleLogin = async () => {
+  try {
+    const response = await fetch('http://localhost:3000/api/auth/login', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        email: email.value,
+        password: password.value
+      }),
+    })
+
+    if (!response.ok) {
+      throw new Error('Credenciales inválidas')
+    }
+
+    const data = await response.json()
+    console.log('Login exitoso:', data)
+
+    router.push('/dashboard')
+  } catch (error) {
+    console.error('Error al iniciar sesión:', error.message)
+    alert('Error de inicio de sesión: ' + error.message)
+  }
 }
 </script>
+
 
 <style scoped>
 header {

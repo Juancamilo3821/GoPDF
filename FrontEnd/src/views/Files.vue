@@ -53,10 +53,9 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { ref, onMounted } from 'vue'
 import AppHeader from '../components/AppHeader.vue'
 import AppFooter from '../components/AppFooter.vue'
-import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { RouterLink } from 'vue-router'
 
 const userName = ref('Andrés')
@@ -69,11 +68,24 @@ const files = ref([
   { name: 'documento-5.pdf', date: '12/3/2025' }
 ])
 
-const statCards = [
-  { label: 'Conversiones Totales', value: 15 },
-  { label: 'Archivos Convertidos', value: 10 },
-  { label: 'URLs Convertidas', value: 6 }
-]
+const stats = ref({ total: 0, office: 0, urls: 0 })
+const statCards = ref([])
+
+onMounted(async () => {
+  try {
+    const res = await fetch('http://localhost:3000/api/stats')
+    const data = await res.json()
+    stats.value = data
+    statCards.value = [
+      { label: 'Conversiones Totales', value: data.total },
+      { label: 'Archivos Convertidos', value: data.office },
+      { label: 'URLs Convertidas', value: data.urls }
+    ]
+  } catch (err) {
+    console.error('Error al obtener estadísticas:', err)
+  }
+})
+
 </script>
 
 <style scoped>

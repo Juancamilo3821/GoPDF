@@ -1,8 +1,9 @@
-const express = require('express');
+import express from 'express';
+import { convertFiles, convertUrls } from '../controllers/convertController.js';
+
 const router = express.Router();
-const controller = require('../controllers/convertController');
 
-router.post('/files', controller.convertFiles);
-router.post('/urls', controller.convertUrls);
+router.post('/files', convertFiles);
+router.post('/urls', convertUrls);
 
-module.exports = router;
+export default router;

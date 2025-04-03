@@ -5,13 +5,13 @@ import "./assets/css/styles.css"
 
 import { library } from '@fortawesome/fontawesome-svg-core'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
-import { faChartBar, faFilePdf, faRightFromBracket, faCloudArrowUp, faChevronRight, faFileLines, faXmark, faPlus  } from '@fortawesome/free-solid-svg-icons'
+import { faChartBar, faFilePdf, faRightFromBracket, faCloudArrowUp, faChevronRight, faFileLines, faXmark, faPlus, faMinus, faClock, faChevronDown, faChevronUp  } from '@fortawesome/free-solid-svg-icons'
 
-library.add(faChartBar, faFilePdf, faRightFromBracket, faCloudArrowUp, faChevronRight, faFileLines, faXmark, faPlus )
+library.add(faChartBar, faFilePdf, faRightFromBracket, faCloudArrowUp, faChevronRight, faFileLines, faXmark, faPlus, faMinus, faClock, faChevronDown, faChevronUp)
 
 
 
-// Importar páginas
+
 import Home from "./views/Home.vue"
 import Login from "./views/Login.vue"
 import Register from "./views/Register.vue"
@@ -19,7 +19,7 @@ import Dashboard from "./views/Dashboard.vue"
 import Files from "./views/Files.vue"
 import Reports from "./views/Reports.vue"
 
-// Configurar rutas
+
 const routes = [
   { path: "/", component: Home },
   { path: "/login", component: Login },
@@ -34,7 +34,7 @@ const router = createRouter({
   routes,
 })
 
-// Crear la aplicación Vue
+
 const app = createApp(App)
 app.use(router)
 app.mount("#app")

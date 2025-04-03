@@ -60,11 +60,42 @@ const email = ref('')
 const password = ref('')
 const confirmPassword = ref('')
 
-const handleRegister = () => {
-  console.log('Registro con:', firstName.value, lastName.value, email.value, password.value)
-  router.push('/dashboard')
+const handleRegister = async () => {
+  if (password.value !== confirmPassword.value) {
+    alert('Las contraseñas no coinciden.')
+    return
+  }
+
+  try {
+    const response = await fetch('http://localhost:3000/api/auth/register', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        email: email.value,
+        password: password.value,
+        firstname: firstName.value,
+        lastname: lastName.value
+      })
+    })
+
+    if (!response.ok) {
+      const errorData = await response.json()
+      throw new Error(errorData.message || 'Error en el registro')
+    }
+
+    const data = await response.json()
+    console.log('Registro exitoso:', data)
+
+    router.push('/dashboard')
+  } catch (error) {
+    console.error('Error al registrar:', error.message)
+    alert('Error en el registro: ' + error.message)
+  }
 }
 </script>
+
 
 <style scoped>
 header {
