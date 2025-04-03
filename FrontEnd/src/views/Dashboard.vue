@@ -74,7 +74,7 @@
         <font-awesome-icon icon="chart-bar" class="icon-chart" />
         <h2>Estadísticas de Conversión</h2>
       </div>
-      <p class="p-info">Sube tus archivos de Office o ingresa una URL para convertir a PDF</p>
+      <p class="p-info">Resumen de tus actividades de conversión</p>
       <div class="stats-grid">
         <div v-for="(item, index) in statCards" :key="index" class="stat-card">
           <p class="stat-value">{{ item.value }}</p>
@@ -95,7 +95,6 @@ import { RouterLink } from 'vue-router'
 
 const userName = ref('Andrés')
 const userLastName = ref('León')
-
 const stats = ref({ total: 0, office: 0, urls: 0 })
 const statCards = ref([])
 
@@ -114,7 +113,6 @@ onMounted(async () => {
   }
 })
 
-
 const archivos = ref([])
 
 const handleFiles = (event) => {
@@ -128,7 +126,7 @@ const handleFiles = (event) => {
   })
 
   if (archivosValidos.length < nuevosArchivos.length) {
-    alert('Algunos archivos fueron rechazados. Solo se permiten archivos de Word (.docx), Excel (.xlsx) y PowerPoint (.pptx).')
+    alert('Algunos archivos fueron rechazados. Solo se permiten Word, Excel y PowerPoint.')
   }
 
   archivos.value.push(...archivosValidos)
@@ -140,21 +138,30 @@ const removerArchivo = (index) => {
 
 const convertirArchivos = async () => {
   try {
-    const archivosConvertidos = []
+    const base64Files = []
+    const fileNames = []
 
     for (const archivo of archivos.value) {
       const base64 = await toBase64(archivo)
-      archivosConvertidos.push({
-        nombre: archivo.name,
-        tipo: archivo.type,
-        tamaño: archivo.size,
-        contenido: base64
-      })
+      base64Files.push(base64)
+      fileNames.push(archivo.name)
     }
 
-    console.log('Archivos en Base64:', archivosConvertidos)
+    const res = await fetch('http://localhost:3000/api/convert/files', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        base64Files,
+        fileNames,
+        token: 'token-ejemplo'
+      })
+    })
+
+    const data = await res.json()
+    console.log(data.pdfBase64)
+    router.push('/dashboard/files')
   } catch (error) {
-    console.error('Error al convertir archivos a Base64:', error)
+    console.error('Error al convertir archivos:', error)
   }
 }
 
@@ -175,7 +182,6 @@ const toBase64 = (file) => {
   })
 }
 
-
 const urls = ref([''])
 const formRef = ref(null)
 
@@ -191,17 +197,34 @@ const removeUrlInput = (index) => {
   }
 }
 
-const convertirUrls = () => {
+const convertirUrls = async () => {
   const form = formRef.value
   if (!form.checkValidity()) {
     form.reportValidity()
     return
   }
 
-  const urlsFiltradas = urls.value.map(u => u.trim())
-  console.log('Convertir URLs:', urlsFiltradas)
+  const urlsFiltradas = urls.value.map(u => u.trim()).filter(Boolean)
+
+  try {
+    const res = await fetch('http://localhost:3000/api/convert/urls', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        urls: urlsFiltradas,
+        token: 'token-ejemplo'
+      })
+    })
+
+    const data = await res.json()
+    console.log(data.pdfBase64)
+    router.push('/dashboard/files')
+  } catch (error) {
+    console.error('Error al convertir URLs:', error)
+  }
 }
 </script>
+
 
 
 
