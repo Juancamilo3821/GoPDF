@@ -1,7 +1,7 @@
 <template>
   <app-header />
   <main>
-    <h1>Bienvenido, {{ userName }} {{ userLastName }} </h1>
+    <h1>Bienvenido</h1>
     <p class="p-title">Convierte tus documentos a PDF fácilmente</p>
 
     <div class="div-menu">
@@ -58,8 +58,6 @@ import AppHeader from '../components/AppHeader.vue'
 import AppFooter from '../components/AppFooter.vue'
 import { RouterLink } from 'vue-router'
 
-const userName = ref('Andrés')
-const userLastName = ref('León')
 const files = ref([
   { name: 'documento-1.pdf', date: '12/3/2025' },
   { name: 'documento-2.pdf', date: '12/3/2025' },

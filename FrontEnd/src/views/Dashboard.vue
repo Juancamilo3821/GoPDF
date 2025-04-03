@@ -1,7 +1,7 @@
 <template>
   <app-header />
   <main>
-    <h1>Bienvenido, {{ userName }} {{ userLastName }} </h1>
+    <h1>Bienvenido</h1>
     <p class="p-title">Convierte tus documentos a PDF fácilmente</p>
 
     <div class="div-menu">
@@ -93,8 +93,6 @@ import AppHeader from '../components/AppHeader.vue'
 import AppFooter from '../components/AppFooter.vue'
 import { RouterLink } from 'vue-router'
 
-const userName = ref('Andrés')
-const userLastName = ref('León')
 const stats = ref({ total: 0, office: 0, urls: 0 })
 const statCards = ref([])
 

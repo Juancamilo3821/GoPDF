@@ -22,6 +22,8 @@ export async function login(req, res) {
     return res.status(401).json({ message: 'Credenciales inválidas' });
   }
 
+  console.log("Sesión Iniciada")
+
   const token = jwt.sign({ email: user.email }, config.jwtSecret, { expiresIn: '1h' });
   res.json({ token });
 }
@@ -33,7 +35,7 @@ export async function register(req, res) {
     const saltRounds = 10;
     const hashedPassword = await bcrypt.hash(password, saltRounds);
 
-    console.log("Registrando usuario:", {email,firstname,lastname,passwordHash: hashedPassword,});
+    console.log("Usuario Registrado:", {email,firstname,lastname,passwordHash: hashedPassword,});
 
     const token = jwt.sign({ email}, config.jwtSecret, {
       expiresIn: '1h',
