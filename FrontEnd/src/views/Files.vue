@@ -28,7 +28,7 @@
         <div class="file-item" v-for="(file, index) in files" :key="index">
           <font-awesome-icon icon="file-pdf" class="icon-pdf" />
           <div class="file-info">
-            <p class="file-name">{{ file.name }}</p>
+            <p class="file-name">{{ file.name + ".pdf" }}</p>
             <p class="file-date">Convertido el {{ file.date }}</p>
           </div>
         </div>
@@ -58,16 +58,37 @@ import AppHeader from '../components/AppHeader.vue'
 import AppFooter from '../components/AppFooter.vue'
 import { RouterLink } from 'vue-router'
 
-const files = ref([
-  { name: 'documento-1.pdf', date: '12/3/2025' },
-  { name: 'documento-2.pdf', date: '12/3/2025' },
-  { name: 'documento-3.pdf', date: '12/3/2025' },
-  { name: 'documento-4.pdf', date: '12/3/2025' },
-  { name: 'documento-5.pdf', date: '12/3/2025' }
-])
-
+const files = ref([])
 const stats = ref({ total: 0, office: 0, urls: 0 })
 const statCards = ref([])
+
+
+onMounted(async () => {
+  try {
+    const resStats = await fetch('http://localhost:3000/api/stats')
+    const data = await resStats.json()
+    stats.value = data
+    statCards.value = [
+      { label: 'Conversiones Totales', value: data.total },
+      { label: 'Archivos Convertidos', value: data.office },
+      { label: 'URLs Convertidas', value: data.urls }
+    ]
+
+    const resReport = await fetch('http://localhost:3000/api/stats/reporte')
+    const dataReport = await resReport.json()
+
+    const lastFiles = dataReport
+      .slice(0, 5)
+      .map(item => ({
+        name: item.archivo ,
+        date: new Date(item.fecha).toLocaleDateString()
+      }))
+
+    files.value = lastFiles
+  } catch (err) {
+    console.error('Error al obtener datos:', err)
+  }
+})
 
 onMounted(async () => {
   try {
